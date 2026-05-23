@@ -28,7 +28,8 @@
 #include <stdio.h>
 #include "iwdg.h"
 #include "rng.h"
-#include "rtc.h"
+#include "shell.h"
+#include "log.h"
 
 /* USER CODE END Includes */
 
@@ -51,17 +52,10 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-/* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for myTask */
-osThreadId_t myTaskHandle;
-const osThreadAttr_t myTask_attributes = {
-  .name = "myTask",
+/* Definitions for mainTask */
+osThreadId_t mainTaskHandle;
+const osThreadAttr_t mainTask_attributes = {
+  .name = "mainTask",
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -71,8 +65,7 @@ const osThreadAttr_t myTask_attributes = {
 
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void *argument);
-void myTaskStart(void *argument);
+void MainTask(void *argument);
 
 extern void MX_LWIP_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -104,11 +97,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-
-  /* creation of myTask */
-  myTaskHandle = osThreadNew(myTaskStart, NULL, &myTask_attributes);
+  /* creation of mainTask */
+  mainTaskHandle = osThreadNew(MainTask, NULL, &mainTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -120,18 +110,19 @@ void MX_FREERTOS_Init(void) {
 
 }
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_MainTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the mainTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+/* USER CODE END Header_MainTask */
+void MainTask(void *argument)
 {
   /* init code for LWIP */
   MX_LWIP_Init();
-  /* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN MainTask */
+	ShellInit();
 	/* Infinite loop */
 	for(;;)
 	{
@@ -139,38 +130,7 @@ void StartDefaultTask(void *argument)
 		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 		osDelay(200);
 	}
-  /* USER CODE END StartDefaultTask */
-}
-
-/* USER CODE BEGIN Header_myTaskStart */
-/**
-* @brief Function implementing the myTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_myTaskStart */
-void myTaskStart(void *argument)
-{
-  /* USER CODE BEGIN myTaskStart */
-	RTC_TimeTypeDef sTime = {0};
-	RTC_DateTypeDef sDate = {0};
-
-	/* Infinite loop */
-	for(;;)
-	{
-		osDelay(1000);
-
-		HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-
-		if(HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK && 
-			HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN) == HAL_OK)
-		{
-			printf("%04d-%02d-%02d %02d:%02d:%02d  ",2000+sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
-		}
-
-		printf("system run time %d ms, random number 0x%08X \n\r", xTaskGetTickCount(), HAL_RNG_GetRandomNumber(&hrng));
-	}
-  /* USER CODE END myTaskStart */
+  /* USER CODE END MainTask */
 }
 
 /* Private application code --------------------------------------------------*/

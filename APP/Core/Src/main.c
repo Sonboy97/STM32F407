@@ -62,7 +62,7 @@
 const header_t Header __attribute__((at(APP_PARTITION_ADDR))) =
 {
 	.name = "APP",
-	.version = "V1.0.1",
+	.version = "V1.0.2",
 	.date = __DATE__,
 	.time = __TIME__,
 	.start_addr = APP_PARTITION_ADDR + 0x200,

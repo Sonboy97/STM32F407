@@ -49,7 +49,7 @@
  *        使能此宏以支持常规C函数形式的命令，shell会自动转换参数
  *        关闭此宏则支持main函数形式的命令，需要自行在函数中处理参数
  */
-#define     SHELL_AUTO_PRASE            1
+#define     SHELL_AUTO_PRASE            0
 
 /**
  * @brief 是否使用shell长帮助

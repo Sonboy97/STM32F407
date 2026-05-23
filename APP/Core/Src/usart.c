@@ -176,7 +176,7 @@ PUTCHAR_PROTOTYPE
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART2 and Loop until the end of transmission */
-  while (HAL_OK != HAL_UART_Transmit_DMA(&huart1, (uint8_t *) &ch, 1))
+  while (HAL_OK != HAL_UART_Transmit(&huart1, (uint8_t *) &ch, 1, 0x1FF))
   {
     ;
   }
@@ -193,7 +193,7 @@ GETCHAR_PROTOTYPE
   /* Place your implementation of fgetc here */
   /* e.g. readwrite a character to the USART2 and Loop until the end of transmission */
   uint8_t ch = 0;
-  while (HAL_OK != HAL_UART_Receive_DMA(&huart1, (uint8_t *)&ch, 1))
+  while (HAL_OK != HAL_UART_Receive(&huart1, (uint8_t *)&ch, 1, 0x1FF))
   {
     ;
   }

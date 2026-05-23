@@ -49,7 +49,7 @@
 const header_t Header =
 {
 	.name = "FSBL",
-	.version = "V1.0.3",
+	.version = "V1.0.4",
 	.date = __DATE__,
 	.time = __TIME__,
 	.start_addr = 0x08000000,
@@ -127,8 +127,6 @@ int main(void)
 		if(strcmp(ssbl_header->name, "SSBL") == 0)
 		{
 			printf("FSBL : Jump to SSBL(0x%08X)... \n\r", ssbl_header->start_addr);
-			
-			HAL_Delay(10);
 			
 			if(program_jump(ssbl_header->start_addr) == false)
 			{

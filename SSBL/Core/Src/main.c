@@ -52,7 +52,7 @@
 const header_t Header __attribute__((at(SSBL_PARTITION_ADDR))) =
 {
 	.name = "SSBL",
-	.version = "V1.0.1",
+	.version = "V1.0.5",
 	.date = __DATE__,
 	.time = __TIME__,
 	.start_addr = SSBL_PARTITION_ADDR + 0x200,
@@ -154,8 +154,6 @@ int main(void)
 		if(strcmp(app_header->name, "APP") == 0)
 		{
 			printf("SSBL : Jump to APP(0x%08X)... \n\r", app_header->start_addr);
-			
-			HAL_Delay(10);
 			
 			if(program_jump(app_header->start_addr) == false)
 			{
@@ -260,8 +258,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		HAL_IWDG_Refresh(&hiwdg);
 		HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
 	}
-  
-
   /* USER CODE END Callback 1 */
 }
 
