@@ -32,8 +32,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <stdbool.h>
-#include "common.h"
-#include "header.h"
+#include "app.h"
 
 /* USER CODE END Includes */
 
@@ -44,29 +43,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#if defined(APP)
-#define APP_PARTITION_ADDR   SAPP_PARTITION_ADDR
-#define APP_PARTITION_SIZE   SAPP_PARTITION_SIZE
-#elif defined(APP1)
-#define APP_PARTITION_ADDR   APP1_PARTITION_ADDR
-#define APP_PARTITION_SIZE   APP1_PARTITION_SIZE
-#elif defined(APP2)
-#define APP_PARTITION_ADDR   APP2_PARTITION_ADDR
-#define APP_PARTITION_SIZE   APP2_PARTITION_SIZE
-#endif
 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-const header_t Header __attribute__((at(APP_PARTITION_ADDR))) =
-{
-	.name = "APP",
-	.version = "V1.0.2",
-	.date = __DATE__,
-	.time = __TIME__,
-	.start_addr = APP_PARTITION_ADDR + 0x200,
-};
 
 /* USER CODE END PM */
 

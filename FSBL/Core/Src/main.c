@@ -28,9 +28,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "common.h"
-#include "header.h"
-#include "ymodem.h"
+#include "fsbl.h"
 
 /* USER CODE END Includes */
 
@@ -46,21 +44,12 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-const header_t Header =
-{
-	.name = "FSBL",
-	.version = "V1.0.4",
-	.date = __DATE__,
-	.time = __TIME__,
-	.start_addr = 0x08000000,
-};
 
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-ymodem_handle_t ymodem_handle;
 
 /* USER CODE END PV */
 
@@ -109,96 +98,19 @@ int main(void)
   MX_USART1_UART_Init();
   MX_CRC_Init();
   /* USER CODE BEGIN 2 */
-
-	printf("\r\n\r\n");
-	printf("FSBL : STM32F407ZGT6 First Stage Boot Loader \r\n");
-	printf("FSBL : %s (%s %s) \r\n", Header.version, Header.date, Header.time);
-
 	HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
 
-	printf("FSBL : Initialization completed \r\n");
-	
-	if(HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET)
-	{
-		header_t *ssbl_header = (header_t *)SSBL_PARTITION_ADDR;
-		
-		printf("FSBL : Verify the integrity of SSBL \r\n");
-		if(strcmp(ssbl_header->name, "SSBL") == 0)
-		{
-			printf("FSBL : Jump to SSBL(0x%08X)... \n\r", ssbl_header->start_addr);
-			
-			if(program_jump(ssbl_header->start_addr) == false)
-			{
-				printf("FSBL : SSBL jump failed ! \r\n");
-			}
-		}
-		else
-		{
-			printf("FSBL : Verify SSBL failed !\r\n");
-		}
-	}
+	FSBL_Boot();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	printf("FSBL : Enter download mode \r\n");
-	
 	while (1)
 	{
-		ymodem_result_t result;
-		
-		/* 初始化Ymodem */
-		result = ymodem_init(&ymodem_handle, SSBL_PARTITION_ADDR);
-		if (result != YMODEM_OK)
-		{
-			printf("FSBL : Ymodem init failed: %d \r\n", result);
-		}
-		else
-		{
-			printf("FSBL : Ymodem receiver ready, waiting for file transfer... \r\n");
+		FSBL_Download();
 
-			HAL_Delay(100);
-			
-			/* 启动Ymodem接收 */
-			result = ymodem_receive(&ymodem_handle);
-			
-			printf("\r\n");
-
-			/* 处理传输结果 */
-			switch (result)
-			{
-				case YMODEM_OK:
-					printf("FSBL : File transfer successful! \r\n");
-					printf("FSBL : Filename: %s \r\n", ymodem_handle.filename);
-					printf("FSBL : File size: %u bytes \r\n", ymodem_handle.filesize);
-					printf("FSBL : Packets received: %u \r\n", ymodem_handle.packets_received);
-					printf("FSBL : Retransmissions: %u \r\n", ymodem_handle.retransmissions);
-					break;
-				case YMODEM_ERROR_TIMEOUT:
-					printf("FSBL : Transfer failed: Timeout \r\n");
-					break;
-				case YMODEM_ERROR_CANCEL:
-					printf("FSBL : Transfer failed: Cancelled \r\n");
-					break;
-				case YMODEM_ERROR_OVERSIZE:
-					printf("FSBL : Transfer failed: File too large \r\n");
-					break;
-				case YMODEM_ERROR_FLASH:
-					printf("FSBL : Transfer failed: Flash operation error \r\n");
-					break;
-				default:
-					printf("FSBL : Transfer failed: Error code %d \r\n", result);
-					break;
-			}
-		}
-
-		if(result == YMODEM_OK)
-		{
-			printf("FSBL : System Reset \r\n");
-			HAL_Delay(100);
-			HAL_NVIC_SystemReset();
-		}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

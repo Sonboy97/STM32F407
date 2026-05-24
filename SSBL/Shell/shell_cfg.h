@@ -12,6 +12,8 @@
 #ifndef __SHELL_CFG_H__
 #define __SHELL_CFG_H__
 
+#include "shell_port.h"
+
 /**
  * @brief 是否使用默认shell任务
  *        使能之后可以使用`shellTask()`建立shell任务，或者使用`shellTask()`进行轮询
@@ -42,7 +44,7 @@
  * @brief 是否显示命令调用函数返回值
  *        使能此宏，则每次调用shell命令之后会以整形和十六进制的方式打印函数的返回值
  */
-#define     SHELL_DISPLAY_RETURN        1
+#define     SHELL_DISPLAY_RETURN        0
 
 /**
  * @brief 是否使用shell参数自动解析

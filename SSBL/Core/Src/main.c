@@ -30,15 +30,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "common.h"
-#include "header.h"
+#include "ssbl.h"
 #include "shell.h"
 
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
 
 /* USER CODE END PTD */
 
@@ -49,20 +47,11 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-const header_t Header __attribute__((at(SSBL_PARTITION_ADDR))) =
-{
-	.name = "SSBL",
-	.version = "V1.0.5",
-	.date = __DATE__,
-	.time = __TIME__,
-	.start_addr = SSBL_PARTITION_ADDR + 0x200,
-};
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
 /* USER CODE BEGIN PV */
-SHELL_TypeDef Shell;
 
 /* USER CODE END PV */
 
@@ -74,22 +63,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-signed char userShellRead(char *data)
-{
-	if(HAL_UART_Receive_DMA(&huart1, (uint8_t *)data, 1) == HAL_OK)
-	{
-		return 0;
-	}
-	else
-	{
-		return -1;
-	}
-}
-
-void userShellWrite(const char data)
-{
-	while(HAL_OK != HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&data, 1));
-}
 
 /* USER CODE END 0 */
 
@@ -129,46 +102,13 @@ int main(void)
   MX_IWDG_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-	printf("SSBL : STM32F407ZGT6 Second Stage Boot Loader \r\n");
-	printf("SSBL : %s (%s %s) \r\n", Header.version, Header.date, Header.time);
-
 	HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-	
+
 	HAL_TIM_Base_Start_IT(&htim2);
-	
-	printf("SSBL : Initialization completed. Starting... \r\n");
-	
-	uint8_t data, wait = 4;
-	do {
-		printf("\rSSBL : Hit any key to stop autoboot : %d ", --wait);
-	}while (wait != 0 && HAL_UART_Receive(&huart1, &data, 1, 1000) != HAL_OK);
-	
-	printf("\r\n");
-	
-	if(wait == 0)
-	{
-		header_t *app_header = (header_t *)SAPP_PARTITION_ADDR;
-		
-		printf("SSBL : Verify the integrity of APP \r\n");
-		if(strcmp(app_header->name, "APP") == 0)
-		{
-			printf("SSBL : Jump to APP(0x%08X)... \n\r", app_header->start_addr);
-			
-			if(program_jump(app_header->start_addr) == false)
-			{
-				printf("SSBL : APP jump failed ! \r\n");
-			}
-		}
-		else
-		{
-			printf("SSBL : Verify APP failed !\r\n");
-		}
-	}
-	
-	Shell.read = userShellRead;
-	Shell.write = userShellWrite;
-	shellInit(&Shell);
+
+	SSBL_Boot();
+	ShellInit();
 
   /* USER CODE END 2 */
 
@@ -176,7 +116,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		shellTask(&Shell);
+		ShellPoll();
 
     /* USER CODE END WHILE */
 

@@ -14,7 +14,7 @@ int shellDate(int argc, char *argv[])
 
 	if(HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK && HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN) == HAL_OK)
 	{
-		printf("%04d年 %02d月 %02d日 %02d:%02d:%02d\r\n", 2000+sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
+		printf("%04d-%02d-%02d %02d:%02d:%02d\r\n", 2000+sDate.Year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
 	}
 
 	return 0;
